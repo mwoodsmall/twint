@@ -1,4 +1,5 @@
 from async_timeout import timeout
+import time
 from datetime import datetime
 from bs4 import BeautifulSoup
 import sys
@@ -158,7 +159,15 @@ def ForceNewTorIdentity(config):
 async def Request(_url, connector=None, params=None, headers=None):
     logme.debug(__name__ + ':Request:Connector')
     async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
-        return await Response(session, _url, params)
+        try:
+            resp = await Response(session, _url, params)
+        except Exception as e:
+            logme.debug('Preparing to retry: ' + _url)
+            sys.stderr.write('Error connecting to url: {}\n'.format(_url))
+            sys.stderr.write('Error: {}\n'.format(repr(e)))
+            time.sleep(3)
+            resp = await Response(session, _url, params)
+        return resp
 
 
 async def Response(session, _url, params=None):

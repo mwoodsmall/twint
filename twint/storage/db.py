@@ -243,6 +243,7 @@ def tweets(conn, Tweet, config):
     try:
         time_ms = round(time.time()*1000)
         cursor = conn.cursor()
+        Tweet.mentions = map(lambda mention: mention['screen_name'], Tweet.mentions)
         entry = (Tweet.id,
                     Tweet.id_str,
                     Tweet.tweet,
@@ -290,7 +291,7 @@ def tweets(conn, Tweet, config):
         if Tweet.reply_to:
             for reply in Tweet.reply_to:
                 query = 'INSERT INTO replies VALUES(?,?,?)'
-                cursor.execute(query, (Tweet.id, int(reply['user_id']), reply['username']))
+                cursor.execute(query, (Tweet.id, int(reply['id']), reply['screen_name']))
 
         conn.commit()
     except sqlite3.IntegrityError:

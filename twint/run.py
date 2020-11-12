@@ -225,12 +225,9 @@ class Twint:
                 self.count += 1
                 await output.Tweets(tweet, self.config, self.conn)
 
-    async def main(self, callback=None):
+    async def main(self):
 
         task = ensure_future(self.run())  # Might be changed to create_task in 3.7+.
-
-        if callback:
-            task.add_done_callback(callback)
 
         await task
 
@@ -311,7 +308,7 @@ class Twint:
             raise
 
 
-def run(config, callback=None):
+async def run(config):
     logme.debug(__name__ + ':run')
     try:
         get_event_loop()
@@ -326,7 +323,7 @@ def run(config, callback=None):
             __name__ + ':run:Unexpected exception occurred while attempting to get or create a new event loop.')
         raise
 
-    get_event_loop().run_until_complete(Twint(config).main(callback))
+    await Twint(config).main()
 
 
 def Favorites(config):
@@ -341,14 +338,14 @@ def Favorites(config):
         storage.panda._autoget("tweet")
 
 
-def Followers(config):
+async def Followers(config):
     logme.debug(__name__ + ':Followers')
     config.Followers = True
     config.Following = False
     config.Profile = False
     config.Favorites = False
     config.TwitterSearch = False
-    run(config)
+    await run(config)
     if config.Pandas_au:
         storage.panda._autoget("followers")
         if config.User_full:
@@ -358,14 +355,14 @@ def Followers(config):
         output._clean_follow_list()
 
 
-def Following(config):
+async def Following(config):
     logme.debug(__name__ + ':Following')
     config.Following = True
     config.Followers = False
     config.Profile = False
     config.Favorites = False
     config.TwitterSearch = False
-    run(config)
+    await run(config)
     if config.Pandas_au:
         storage.panda._autoget("following")
         if config.User_full:
@@ -375,15 +372,15 @@ def Following(config):
         output._clean_follow_list()
 
 
-def Lookup(config):
+async def Lookup(config):
     logme.debug(__name__ + ':Lookup')
     config.Profile = False
     config.Lookup = True
     config.Favorites = False
-    config.FOllowing = False
+    config.Following = False
     config.Followers = False
     config.TwitterSearch = False
-    run(config)
+    await run(config)
     if config.Pandas_au:
         storage.panda._autoget("user")
 
@@ -400,13 +397,13 @@ def Profile(config):
         storage.panda._autoget("tweet")
 
 
-def Search(config, callback=None):
+def Search(config):
     logme.debug(__name__ + ':Search')
     config.TwitterSearch = True
     config.Favorites = False
     config.Following = False
     config.Followers = False
     config.Profile = False
-    run(config, callback)
+    run(config)
     if config.Pandas_au:
         storage.panda._autoget("tweet")

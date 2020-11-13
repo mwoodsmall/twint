@@ -105,6 +105,7 @@ def initialize(args):
     c.Stats = args.stats
     c.Database = args.database
     c.To = args.to
+    c.Tor_guest = args.tor_guest
     c.All = args.all
     c.Essid = args.essid
     c.Format = args.format
@@ -214,6 +215,13 @@ def options():
         help="Collects every tweet from a User's Timeline. (Tweets, RTs & Replies)",
         action="store_true",
     )
+    ap.add_argument(
+        "-tg",
+        "--tor-guest",
+        help="Use this if you want to use tor natively for requesting guest token from twitter.",
+        action="store_true",
+    )
+
     ap.add_argument("--translate",
                     help="Get tweets translated by Google Translate.",
                     action="store_true")
